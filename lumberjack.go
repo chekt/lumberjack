@@ -38,7 +38,7 @@ import (
 const (
 	backupTimeFormat = "2006-01-02T15-04-05.000"
 	compressSuffix   = ".gz"
-	defaultMaxSize   = 100
+	defaultMaxSize   = 1024
 )
 
 // ensure we always implement io.WriteCloser
@@ -83,7 +83,7 @@ type Logger struct {
 	Filename string `json:"filename" yaml:"filename"`
 
 	// MaxSize is the maximum size in megabytes of the log file before it gets
-	// rotated. It defaults to 100 megabytes.
+	// rotated. It defaults to 1 megabyte.
 	MaxSize int `json:"maxsize" yaml:"maxsize"`
 
 	// MaxAge is the maximum number of days to retain old log files based on the
@@ -126,6 +126,8 @@ var (
 	// variable so tests can mock it out and not need to write megabytes of data
 	// to disk.
 	megabyte = 1024 * 1024
+	
+	kilobyte = 1024
 )
 
 // Write implements io.Writer.  If a write would cause the log file to be larger
@@ -444,9 +446,9 @@ func (l *Logger) timeFromName(filename, prefix, ext string) (time.Time, error) {
 // max returns the maximum size in bytes of log files before rolling.
 func (l *Logger) max() int64 {
 	if l.MaxSize == 0 {
-		return int64(defaultMaxSize * megabyte)
+		return int64(defaultMaxSize * kilobyte)
 	}
-	return int64(l.MaxSize) * int64(megabyte)
+	return int64(l.MaxSize) * int64(kilobyte)
 }
 
 // dir returns the directory for the current filename.
